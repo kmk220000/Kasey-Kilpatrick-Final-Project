@@ -67,11 +67,34 @@ def schedule_screen(theme):
         on_days.append(on_day_img)
         print(on_day_img)
         y += 112
+    
+    add_art(canvas)
+    exit_button(schedule)
 
     schedule.mainloop()
     
+def add_art(canvas: tk.Canvas):
+    # Button to add art behind canvas to the right side of the screen
+    def choose_art():
+        upload_art = tkinter.filedialog.askopenfilename()
+        print(upload_art)
+        with PIL.Image.open(upload_art) as uploaded_art:
+            canvas.art_img = PIL.ImageTk.PhotoImage(uploaded_art)
+            canvas.uploaded_art = uploaded_art
 
+        canvas.create_image(1920,0, anchor=tk.NE, image=canvas.art_img, tag="Art")
+        canvas.tag_lower("Art")
 
+    art = tk.Button(canvas, text="Add Art", command=choose_art)
+    art.place(x=1800, y=500) 
+
+    
+        
+
+def exit_button(schedule: tk.Tk):
+    # TEMP EXIT BUTTON - ADD SAVE BUTTON
+    exit = tk.Button(schedule, text="Exit", command=schedule.destroy)
+    exit.place(x=1880, y=1000)
 
 
 def main():
