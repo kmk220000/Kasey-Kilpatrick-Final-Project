@@ -75,20 +75,68 @@ def schedule_screen(theme):
     
 def add_art(canvas: tk.Canvas):
     # Button to add art behind canvas to the right side of the screen
-    def choose_art():
-        upload_art = tkinter.filedialog.askopenfilename()
-        print(upload_art)
-        with PIL.Image.open(upload_art) as uploaded_art:
-            canvas.art_img = PIL.ImageTk.PhotoImage(uploaded_art)
-            canvas.uploaded_art = uploaded_art
+    art = tk.Button(canvas, text="Add Art", command=lambda: choose_art(canvas))
+    art.place(x=1800, y=500)
 
-        canvas.create_image(1920,0, anchor=tk.NE, image=canvas.art_img, tag="Art")
-        canvas.tag_lower("Art")
+def choose_art(canvas):
+    # Button to choose and place the art on the right
+    upload_art = tkinter.filedialog.askopenfilename()
+    print(upload_art)
+    with PIL.Image.open(upload_art) as uploaded_art:
+        canvas.art_img = PIL.ImageTk.PhotoImage(uploaded_art)
+        canvas.uploaded_art = uploaded_art
+        art_width, art_height = uploaded_art.size
+        art_ratio = float(art_width) / art_height
 
-    art = tk.Button(canvas, text="Add Art", command=choose_art)
-    art.place(x=1800, y=500) 
+    canvas.create_image(1920,0, anchor=tk.NE, image=canvas.art_img, tag="Art")
+    canvas.tag_lower("Art")
+    fit_art(canvas, art_ratio, art_height)
 
-    
+def fit_art(canvas: tk.Canvas, art_ratio, art_height):
+    # sliders to fit art to space
+    rs_var = tk.IntVar()
+    x_var = tk.IntVar()
+    y_var = tk.IntVar()
+    rs_window = tk.Tk()
+    rs_window.geometry("300x500")
+    def art_resizer():
+        rs_newheight = art_height + (5 * rs_var.get())
+        rs_newwidth = rs_newheight * art_ratio
+        print(rs_newwidth, rs_newheight)
+        rs_uploaded_art = canvas.uploaded_art.resize((int(rs_newwidth), rs_newheight))
+        with PIL.Image.open(rs_uploaded_art):
+            canvas.rs_art_img = PIL.ImageTk.PhotoImage(rs_uploaded_art)
+
+            canvas.create_image(1920,0, anchor=tk.NE, image=canvas.rs_art_img, tag="Art")
+        return rs_uploaded_art
+        # canvas.tag_lower("Art")
+    def art_mover(rs_uploaded_art):
+        x_og = 1920
+        y_og = 0
+        x_new = x_og - x_var.get()
+        y_new = y_og + y_var.get()
+        with PIL.Image.open(rs_uploaded_art):
+            canvas.rs_art_img = PIL.ImageTk.PhotoImage(rs_uploaded_art)
+
+            canvas.create_image(x_new,y_new, anchor=tk.NE, image=canvas.rs_art_img, tag="Art")
+    def art_done():
+        rs_window.destroy()
+    rs_scale = tk.Scale(rs_window, variable=rs_var, from_=-500, to=500,
+                            orient="horizontal")
+    x_scale = tk.Scale(rs_window, variable=x_var, from_=0, to=1000, orient="horizontal")
+    y_scale = tk.Scale(rs_window, variable=y_var, from_=0, to=1000, orient="vertical")
+    rs_button = tk.Button(rs_window, text="Resize", command=art_resizer)
+    xy_button = tk.Button(rs_window, text="Adjust", command=art_mover)
+    artdone_button = tk.Button(rs_window, text="Done", command=art_done)
+    rs_label = tk.Label(rs_window, text="Resize/Reposition Art")
+    rs_label.pack()
+    rs_scale.pack()
+    rs_button.pack()
+    x_scale.pack()
+    y_scale.pack()
+    xy_button.pack()
+    artdone_button.pack()
+
         
 
 def exit_button(schedule: tk.Tk):
