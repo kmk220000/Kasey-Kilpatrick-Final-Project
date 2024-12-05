@@ -1,5 +1,4 @@
 import tkinter as tk
-import datetime
 import PIL
 import os
 import time
@@ -27,6 +26,7 @@ def welcome_screen():
     choose.pack()
 
     def launch():
+        # When start button is clicked, launches schedule
         global theme
         theme = clicked.get()
         welcome.destroy()
@@ -59,14 +59,12 @@ def schedule_screen(theme):
             "Thursday", "Friday", "Saturday"]
     index = 0
     for on_day_loop in os.listdir(f'themes/{theme}/days/ON'):
-        # print(on_day_open)
+        # Loop to place each day of the week separately
         with PIL.Image.open(f'themes/{theme}/days/ON/{on_day_loop}') as on_day_open:
-            # on_day_open.show()
             on_day_img = PIL.ImageTk.PhotoImage(on_day_open)
         canvas.create_image(x,y, anchor=tk.NW, image=on_day_img, tag=days[index])
         on_days.append(on_day_img)
         index += 1
-        # print(on_day_img)
         y += 112
     
     add_art(canvas)
@@ -77,10 +75,12 @@ def schedule_screen(theme):
     
 def add_games(canvas: tk.Canvas, theme):
     # Button to add games to each day
-    game_button = tk.Button(canvas, text="Edit Games", command=lambda: choose_games(canvas, theme, game_button))
+    game_button = tk.Button(canvas, text="Edit Games", 
+                            command=lambda: choose_games(canvas, theme, game_button))
     game_button.place(x=1250, y=200)
 
 def no_stream(day, canvas: tk.Canvas):
+    # When "No" is selected in the games window, change day to "no stream" dark ver
     day_nums = {
     "Sunday": 1,
     "Monday": 2,
@@ -98,12 +98,10 @@ def no_stream(day, canvas: tk.Canvas):
         canvas.image_refs = {}
     canvas.image_refs[day] = ns_img
     canvas.itemconfig(day, image=ns_img)
-    # print(canvas.coords(on_days[day_nums[day]]))
-    # ns_coords = canvas.coords(on_days[day_nums[day]])
-    # canvas.create_image(27,ns_y_list[day_nums[day]], anchor=tk.NW, image=ns_img)
 
 def choose_games(canvas: tk.Canvas, theme, game_button: tk.Button):
     # Fields to enter games and times
+    # Variables and fonts needed for this function
     game_button.place_forget()
     days = ["Sunday", "Monday", "Tuesday", "Wednesday", 
             "Thursday", "Friday", "Saturday"]
@@ -113,16 +111,10 @@ def choose_games(canvas: tk.Canvas, theme, game_button: tk.Button):
     mins = []
     ampms = []
     tzs = []
-    # on_off_entered = []
 
     gm_window = tk.Tk()
     gm_window.geometry("600x600")
     gm_window.title("Choose Games")
-    
-    #for i in range(7):
-        #on_off_entered.append(tk.StringVar(value="Yes"))
-
-    #pyglet.options['win32_gdi_font'] = True
 
     #pyglet.font.add_file(f'themes/{theme}/{theme} game font.otf')
     #pyglet.font.add_file(f'themes/{theme}/{theme} time font.ttf')
@@ -143,6 +135,7 @@ def choose_games(canvas: tk.Canvas, theme, game_button: tk.Button):
     
 
     def write_games():
+        # Displays text/options entered by user in each field for each day
         y_game = 260
         y_time = 300
         for idx, day in enumerate(days):
@@ -166,23 +159,21 @@ def choose_games(canvas: tk.Canvas, theme, game_button: tk.Button):
         
     row = 0
     for idx, day in enumerate(days):
+        # Generates all necessary input fields for each day of the week
+        # Stream: Yes/No
         on_off_text = tk.Label(gm_window, text=f"Stream on {day}?")
         on_off_text.grid(row=row)
         on_off_entered = tk.StringVar(gm_window)
         on_off_entered.set("Yes")
         on_off_input = tk.OptionMenu(gm_window, on_off_entered, *["No"])
         on_off_input.grid(row=row, column=1)
-        # on_button = tk.Radiobutton(gm_window, text="Yes", 
-                                # variable=on_off_entered[idx], value="Yes")
-        # on_button.grid(row=row, column=1)
-        # off_button = tk.Radiobutton(gm_window, text="No",
-                                # variable=on_off_entered[idx], value="No")
-        # off_button.grid(row=row, column=2)
         row+=1
+        # Game Title Input
         day_text = tk.Label(gm_window, text=f"{day}'s Game")
         day_text.grid(row=row)
         gm_input = tk.Entry(gm_window)
         gm_input.grid(row=row, column=1)
+        # Stream Time Input, AM/PM, Timezone
         time_text = tk.Label(gm_window, text="Time")
         time_text.grid(row=row, column=2)
         time_input = tk.Entry(gm_window, width=5)
@@ -202,29 +193,23 @@ def choose_games(canvas: tk.Canvas, theme, game_button: tk.Button):
                             *["EST", "UTC", "JST"])
         tz.grid(row=row, column=7)
         row+=1
+        # Add to lists
         on_offs.append(on_off_entered)
         games.append(gm_input)
         hours.append(time_input)
         mins.append(time_input2)
         ampms.append(am_pm_entered)
-        tzs.append(tz_entered)
-        # print(games)
-    
+        tzs.append(tz_entered)    
 
     tk.Button(gm_window, text="Add Games", command=write_games).grid()
     
-
-    
-    
-
-
 def add_art(canvas: tk.Canvas):
     # Button to add art behind canvas to the right side of the screen
     art = tk.Button(canvas, text="Add Art", command=lambda: choose_art(canvas, art))
     art.place(x=1500, y=500)
 
 def choose_art(canvas, art: tk.Button):
-    # Button to choose and place the art on the right
+    # Choose and place the art on the right
     art.place_forget()
     upload_art = tkinter.filedialog.askopenfilename()
     print(upload_art)
@@ -257,6 +242,7 @@ def fit_art(canvas: tk.Canvas, art_ratio, art):
     y_pos = 0
 
     def update_art(value):
+        # Changes art in real time as the sliders are moved
         nonlocal current_img, x_pos, y_pos
         rs_factor = rs_var.get()
         x_move = x_var.get()
@@ -280,13 +266,13 @@ def fit_art(canvas: tk.Canvas, art_ratio, art):
     tk.Scale(rs_window, from_=0, to=500, variable=y_var, 
             orient="vertical", command=update_art).pack()
     tk.Button(rs_window, text="Done", command=rs_window.destroy).pack()
-    
 
     rs_window.mainloop()
 
 def exit_button(schedule: tk.Tk, canvas: tk.Canvas):
     # Saves image to files and exits
     def confirmation():
+        # Asks if you are ready to save and quit
         exit.place_forget()
         exit_window = tk.Tk()
         exit_window.geometry("200x200")
@@ -294,6 +280,7 @@ def exit_button(schedule: tk.Tk, canvas: tk.Canvas):
         tk.Label(exit_window, text="Save and Quit?").pack()
         tk.Button(exit_window, text="Yes", command=lambda: save_button(exit_window)).pack()
     def save_button(exit_window: tk.Tk):
+        # Saves screen as image and ends program
         x = canvas.winfo_rootx() + canvas.winfo_x()
         y = canvas.winfo_rooty() + canvas.winfo_y()
         x1 = x + canvas.winfo_width()
@@ -308,8 +295,6 @@ def exit_button(schedule: tk.Tk, canvas: tk.Canvas):
 
 
 def main():
-    
-
     welcome_screen()
 
     
