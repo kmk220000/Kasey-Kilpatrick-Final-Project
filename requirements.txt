@@ -1,0 +1,9 @@
+tkinter
+tkinter.filedialog
+tkinter.font
+PIL
+PIL.Image
+PIL.ImageGrab
+PIL.ImageTk
+os
+time

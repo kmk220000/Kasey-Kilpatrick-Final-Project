@@ -2,7 +2,6 @@ import tkinter as tk
 import PIL
 import os
 import time
-import pyglet
 
 import PIL.Image
 import PIL.ImageGrab
@@ -10,12 +9,12 @@ import PIL.ImageTk
 import tkinter.filedialog
 from tkinter import font
 
-def welcome_screen():
+def main():
     # Screen to choose theme and start the schedule builder
     welcome = tk.Tk()
     welcome.geometry("300x200")
     welcome.title("Welcome!")
-    welcome_message = tk.Label(welcome, text="VTuber Schedule Builder",
+    welcome_message = tk.Label(welcome, text="Stream Schedule Builder",
                                       font=("Arial", 18))
     welcome_message.pack()
 
@@ -43,7 +42,7 @@ def schedule_screen(theme):
     # Main screen with background image and days coded in
     schedule = tk.Tk()
     schedule.attributes("-fullscreen", True)
-    schedule.title("VTuber Schedule Builder")
+    schedule.title("Stream Schedule Builder")
     schedule.configure(bg="black")
     canvas = tk.Canvas(schedule, width=1920, height=1080)
     canvas.pack()
@@ -77,7 +76,7 @@ def add_games(canvas: tk.Canvas, theme):
     # Button to add games to each day
     game_button = tk.Button(canvas, text="Edit Games", 
                             command=lambda: choose_games(canvas, theme, game_button))
-    game_button.place(x=1250, y=200)
+    game_button.place(x=200, y=180)
 
 def no_stream(day, canvas: tk.Canvas):
     # When "No" is selected in the games window, change day to "no stream" dark ver
@@ -90,7 +89,6 @@ def no_stream(day, canvas: tk.Canvas):
     "Friday": 6,
     "Saturday": 7
     }
-    print(day_nums[day])
     with PIL.Image.open(f'themes/{theme}/days/OFF/{theme} {day_nums[day]} OFF.png') as ns_open:
         ns_img = PIL.ImageTk.PhotoImage(ns_open)
 
@@ -115,24 +113,15 @@ def choose_games(canvas: tk.Canvas, theme, game_button: tk.Button):
     gm_window = tk.Tk()
     gm_window.geometry("600x600")
     gm_window.title("Choose Games")
-
-    #pyglet.font.add_file(f'themes/{theme}/{theme} game font.otf')
-    #pyglet.font.add_file(f'themes/{theme}/{theme} time font.ttf')
-    #pyglet.font.add_file(f'themes/{theme}/{theme} other font.ttf')
-
-    #gm_font = f"{theme} game font"
-    #time_font = f"{theme} time font"
-    #other_font = f"{theme} other font"
-
-    gm_font_path = os.path.abspath(f'themes/{theme}/{theme} game font.otf')
-    time_font_path = os.path.abspath(f'themes/{theme}/{theme} time font.ttf')
-    print(gm_font_path, time_font_path)
-    gm_font = font.Font(family=gm_font_path, size=42)
-    time_font = font.Font(family=time_font_path, size=20)
-
-    # placeholder_font1 = tkinter.font.Font(family="Arial", size=42)
-    # placeholder_font2 = tkinter.font.Font(family="Arial", size=20)
-    
+    # Custom font info: MUST INSTALL BEFORE RUNNING
+    gm_font_var = os.listdir(f'themes/{theme}/fonts/game')
+    gm_font_path = os.path.abspath(gm_font_var[0])
+    gm_font_base = os.path.basename(gm_font_path)[:-4]
+    time_font_var = os.listdir(f'themes/{theme}/fonts/time/')
+    time_font_path = os.path.abspath(time_font_var[0])
+    time_font_base = os.path.basename(time_font_path)[:-4]
+    gm_font = font.Font(family=gm_font_base, size=42)
+    time_font = font.Font(family=time_font_base, size=20)    
 
     def write_games():
         # Displays text/options entered by user in each field for each day
@@ -141,7 +130,8 @@ def choose_games(canvas: tk.Canvas, theme, game_button: tk.Button):
         for idx, day in enumerate(days):
             if on_offs[idx].get() == "No":
                 no_stream(day, canvas)
-                print(on_offs[idx].get())
+                y_game+=112
+                y_time+=112
                 continue
             game = games[idx].get()
             hour = hours[idx].get()
@@ -154,7 +144,6 @@ def choose_games(canvas: tk.Canvas, theme, game_button: tk.Button):
                 canvas.create_text(220,y_time, text=f"{hour}:{minute} {ampm} {timezone}", fill="#9C7130", font=time_font, anchor="w")
             y_game += 112
             y_time += 112
-            print(game,hour,minute,ampm,timezone)
         gm_window.destroy()
         
     row = 0
@@ -212,7 +201,6 @@ def choose_art(canvas, art: tk.Button):
     # Choose and place the art on the right
     art.place_forget()
     upload_art = tkinter.filedialog.askopenfilename()
-    print(upload_art)
     canvas.delete("Art")
     with PIL.Image.open(upload_art) as uploaded_art:
         canvas.art_img = PIL.ImageTk.PhotoImage(uploaded_art)
@@ -260,10 +248,10 @@ def fit_art(canvas: tk.Canvas, art_ratio, art):
     tk.Scale(rs_window, from_=-200, to=200, variable=rs_var, 
             orient="horizontal", command=update_art).pack()
     tk.Label(rs_window, text="Move Art Horizontally").pack()
-    tk.Scale(rs_window, from_=0, to=500, variable=x_var,
+    tk.Scale(rs_window, from_=-500, to=500, variable=x_var,
             orient="horizontal", command=update_art).pack()
     tk.Label(rs_window, text="Move Art Vertically").pack()
-    tk.Scale(rs_window, from_=0, to=500, variable=y_var, 
+    tk.Scale(rs_window, from_=-500, to=500, variable=y_var, 
             orient="vertical", command=update_art).pack()
     tk.Button(rs_window, text="Done", command=rs_window.destroy).pack()
 
@@ -291,13 +279,7 @@ def exit_button(schedule: tk.Tk, canvas: tk.Canvas):
         schedule.destroy()
     
     exit = tk.Button(schedule, text="Save & Quit", command=confirmation)
-    exit.place(x=1800, y=1000)
-
-
-def main():
-    welcome_screen()
-
-    
+    exit.place(x=1770, y=1022)
 
 if __name__ == "__main__":
     main()
